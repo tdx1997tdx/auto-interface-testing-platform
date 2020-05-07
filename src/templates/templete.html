@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>http接口自动化测试报告</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 引入 Bootstrap -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        .hidden-detail,
+        .hidden-tr {
+            display: none;
+        }
+        
+        .table td {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class='col-md-4 col-md-offset-4' style='margin-left:3%;'>
+        <h1>接口测试的结果</h1>
+        <table class="table table-hover table-condensed">
+            <tbody>
+                <tr>
+                    <td><strong>开始时间:</strong> {{begin_time}}</td>
+                </tr>
+                <td><strong>结束时间:</strong> {{end_time}}</td>
+                </tr>
+                <td><strong>耗时:</strong> {{cost_time}}s</td>
+                </tr>
+                <td><strong>结果:</strong>
+                    <span>Pass: <strong >{{container.success_case_num}}</strong>
+			Fail: <strong >{{container.fail_case_num}}</strong></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row " style="margin:60px">
+        <div style='    margin-top: 18%;'>
+            <div class="btn-group" role="group" aria-label="...">
+                <button type="button" id="check-all" class="btn btn-primary">所有用例</button>
+                <button type="button" id="check-success" class="btn btn-success">成功用例</button>
+                <button type="button" id="check-danger" class="btn btn-danger">失败用例</button>
+            </div>
+            <div class="btn-group" role="group" aria-label="...">
+            </div>
+            <table id="puBmxqjh_table" class="table table-hover table-condensed table-bordered" style="word-wrap:break-word; word-break:break-all;margin-top: 7px;table-layout:fixed">
+                <tr>
+                    <td><strong>用例ID&nbsp;</strong></td>
+                    <td><strong>用例名字</strong></td>
+                    <td><strong>url</strong></td>
+                    <td><strong>请求方式</strong></td>
+                    <td><strong>headers</strong></td>
+                    <td><strong>数据</strong></td>
+                    <td><strong>期望返回状态</strong></td>
+                    <td><strong>期望响应数据包含字段</strong></td>
+                    <td><strong>实际返回状态</strong></td>
+                    <td><strong>实际响应数据</strong></td>
+                    <td><strong>message</strong></td>
+                </tr>
+                {% for case in container %} {% if case.judge[0]==2%}
+                <tr class="case-tr success">
+                    {% else %}
+                    <tr class="case-tr fail">
+                        {% endif %}
+                        <td>{{case.id}}</td>
+                        <td>{{case.name}}</td>
+                        <td>{{case.url}}</td>
+                        <td>{{case.method}}</td>
+                        <td>{{case.headers}}</td>
+                        <td>{{case.data}}</td>
+                        <td>{{case.expect_code}}</td>
+                        <td>{{case.expect_return}}</td>
+                        <td>{{case.ret_code}}</td>
+                        <td>{{case.ret_result}}</td>
+                        <td>{{case.judge[1]}}</td>
+                    </tr>
+                    {% endfor %}
+        </div>
+    </div>
+    </table>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/layer/2.3/layer.js"></script>
+    <script type="text/javascript">
+        $("#check-danger").click(function(e) {
+            $(".case-tr").removeClass("hidden-tr");
+            $(".success").addClass("hidden-tr");
+        });
+        $("#check-success").click(function(e) {
+            $(".case-tr").removeClass("hidden-tr");
+            $(".fail").addClass("hidden-tr");
+        });
+        $("#check-all").click(function(e) {
+            $(".case-tr").removeClass("hidden-tr");
+        });
+        var tip_index = 0;
+        $("table").on("mouseover", "td", function() {
+            if (this.offsetWidth < this.scrollWidth) { //判断文本是否超出
+                var content = $(this).text(); //获取文案
+                if (content) {
+                    tip_index = layer.tips(content, this, {
+                        time: 0,
+                        tips: [3, '#ffb951'],
+                        area: ['200px', 'auto']
+                    });
+                }
+            }
+        })
+        $("table").on("mouseleave", "td", function() {
+            layer.close(tip_index);
+        })
+    </script>
+</body>
+
+</html>

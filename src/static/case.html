@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业楼宇自动化接口测试平台</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.11/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0px;
+            border: 0px;
+        }
+        
+        .table td {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-default">
+            <a class="navbar-brand" href="#">企业楼宇系统后台接口测试平台</a>
+            <div class="container">
+
+                <ul class="nav nav-tabs nav-justified">
+                    <li role="presentation" class="active"><a href="/case.html">用例管理</a></li>
+                    <li role="presentation"><a href="/report.html">报告管理</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#caseFrame" v-on:click="init_add_case_obj()">添加用例</button>
+        <!-- 添加用例框 -->
+        <div class="modal fade" id="caseFrame" tabindex="-1" role="dialog" aria-labelledby="caseLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h3 class="modal-title" id="caseLabel" style="text-align:center">添加用例</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="caseID1" class="col-sm-2 control-label">用例ID</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="caseID1" v-model="add_case_obj.id" disabled="disabled">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="caseName1" class="col-sm-2 control-label">用例名称</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="caseName1" v-model="add_case_obj.name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="url1" class="col-sm-2 control-label">url</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="url1" v-model="add_case_obj.url">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="method1" class="col-sm-2 control-label">请求方式</label>
+                                <div class="col-sm-10">
+                                    <select name="select_name" class="form-control" id="method1" v-model="add_case_obj.method">
+                                        <option>get</option>
+                                        <option>post</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="isexe1" class="col-sm-2 control-label">是否执行</label>
+                                <div class="col-sm-10">
+                                    <select name="select_name" class="form-control" id="isexe1" v-model="add_case_obj.is_exe">
+                                        <option>yes</option>
+                                        <option>no</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="headers1" class="col-sm-2 control-label">头部信息</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="3" id="headers1" v-model="add_case_obj.headers"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="data1" class="col-sm-2 control-label">数据</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="5" id="data1" v-model="add_case_obj.data"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expect_code1" class="col-sm-2 control-label">期望状态码</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="expect_code1" v-model="add_case_obj.expect_code">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expect_ret1" class="col-sm-2 control-label">期望数据段</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="3" id="expect_ret1" v-model="add_case_obj.expect_return"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="level1" class="col-sm-2 control-label">判断等级</label>
+                                <div class="col-sm-10">
+                                    <select name="select_name" class="form-control" id="level1" v-model="add_case_obj.level">
+                                        <option>1</option>
+                                        <option>2</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer" style="text-align:center">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" v-on:click="add_case()">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#settingFrame" v-on:click="get_setting()">设置</button>
+        <button type="button" class="btn btn-primary" v-on:click="execute_case()">执行用例</button>
+        <!-- 设置框 -->
+        <div class="modal fade" id="settingFrame" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h3 class="modal-title" id="caseLabel" style="text-align:center">设置</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="baseUrl" class="col-sm-2 control-label">basedURL</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="baseUrl" v-model="setting.based_url">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="basedHeaders" class="col-sm-2 control-label">based头部信息</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="5" id="basedHeaders" v-model="setting.based_headers"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cookie" class="col-sm-2 control-label">cookie</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="cookie" v-model="setting.cookie">
+                                </div>
+                            </div>
+
+                        </form>
+                        <form class="form-inline">
+                            <div class="form-group">
+                                <label for="userName" class="control-label">name</label>
+                                <input type="text" class="form-control" id="userName" v-model="setting.username">
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="control-label">pass</label>
+                                <input type="text" class="form-control" id="password" v-model="setting.password">
+                            </div>
+                            <div class="form-group">
+                                <label for="role" class="control-label">role</label>
+                                <select name="select_name" class="form-control" id="role" v-model="setting.role">
+                                    <option>0</option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                </select>
+                            </div>
+                        </form>
+                        <div class="form-group" style="text-align:center;margin:10px">
+                            <button type="button" class="btn btn-primary btn-sm" v-on:click="generate_cookie()">生成cookie</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" v-on:click="set_setting()">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <table class="table table-hover table-condensed table-bordered" style="word-wrap:break-word; word-break:break-all;margin-top: 7px;table-layout:fixed">
+            <thead>
+                <tr>
+                    <td><strong>用例序号&nbsp;</strong></td>
+                    <td><strong>用例名字</strong></td>
+                    <td><strong>url</strong></td>
+                    <td><strong>请求方式</strong></td>
+                    <td><strong>是否执行</strong></td>
+                    <td><strong>头部信息</strong></td>
+                    <td><strong>数据</strong></td>
+                    <td><strong>期望状态</strong></td>
+                    <td><strong>期望字段</strong></td>
+                    <td><strong>等级</strong></td>
+                    <td><strong>操作</strong></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,i) in cases">
+                    <td>{{i+1}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.url}}</td>
+                    <td>{{item.method}}</td>
+                    <td>{{item.is_exe}}</td>
+                    <td>{{item.headers}}</td>
+                    <td>{{item.data}}</td>
+                    <td>{{item.expect_code}}</td>
+                    <td>{{item.expect_return}}</td>
+                    <td>{{item.level}}</td>
+                    <td>
+                        <a href="#" v-on:click="init_update_case_obj(i)" data-toggle="modal" data-target="#changeCase">修改</a>
+                        <a href="#" v-on:click="del_case(i)">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 添加用例框 -->
+        <div class="modal fade" id="changeCase" tabindex="-1" role="dialog" aria-labelledby="caseLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h3 class="modal-title" id="caseLabel" style="text-align:center">修改用例</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="caseID1" class="col-sm-2 control-label">用例ID</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="caseID1" v-model="update_case_obj.id" disabled="disabled">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="caseName1" class="col-sm-2 control-label">用例名称</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="caseName1" v-model="update_case_obj.name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="url1" class="col-sm-2 control-label">url</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="url1" v-model="update_case_obj.url">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="method1" class="col-sm-2 control-label">请求方式</label>
+                                <div class="col-sm-10">
+                                    <select name="select_name" class="form-control" id="method1" v-model="update_case_obj.method">
+                                        <option>get</option>
+                                        <option>post</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="isexe1" class="col-sm-2 control-label">是否执行</label>
+                                <div class="col-sm-10">
+                                    <select name="select_name" class="form-control" id="isexe1" v-model="update_case_obj.is_exe">
+                                        <option>yes</option>
+                                        <option>no</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="headers1" class="col-sm-2 control-label">头部信息</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="3" id="headers1" v-model="update_case_obj.headers"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="data1" class="col-sm-2 control-label">数据</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="5" id="data1" v-model="update_case_obj.data"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expect_code1" class="col-sm-2 control-label">期望状态码</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="expect_code1" v-model="update_case_obj.expect_code">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expect_ret1" class="col-sm-2 control-label">期望数据段</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" rows="3" id="expect_ret1" v-model="update_case_obj.expect_return"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="level1" class="col-sm-2 control-label">判断等级</label>
+                                <div class="col-sm-10">
+                                    <select name="select_name" class="form-control" id="level1" v-model="update_case_obj.level">
+                                        <option>1</option>
+                                        <option>2</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer" style="text-align:center">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" v-on:click="update_case()">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/layer/2.3/layer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script type="text/javascript">
+        function isJSON(str) {
+            if (typeof str == 'string') {
+                try {
+                    var obj = JSON.parse(str);
+                    if (typeof obj == 'object' && obj) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+
+                } catch (e) {
+                    console.log('error：' + str + '!!!' + e);
+                    return false;
+                }
+            }
+            console.log('It is not a string!')
+        }
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                setting: {},
+                cases: [],
+                add_case_obj: {
+                    id: 0,
+                    url: '',
+                    method: 'post',
+                    is_exe: 'yes',
+                    headers: '{}',
+                    data: '{}',
+                    expect_code: 200,
+                    expect_return: '',
+                    level: 1,
+                },
+                update_case_obj: {
+                    id: 0,
+                    url: '',
+                    method: 'post',
+                    is_exe: 'yes',
+                    headers: '{}',
+                    data: '{}',
+                    expect_code: 200,
+                    expect_return: '',
+                    level: 1,
+                }
+            },
+            methods: {
+                set_setting() {
+                    if (!isJSON(this.setting.based_headers)) {
+                        alert('请输入json格式的based_headers')
+                        return
+                    }
+                    var send_data = JSON.parse(JSON.stringify(this.setting));
+                    send_data.based_headers = eval('(' + send_data.based_headers + ')');
+                    axios({
+                            url: '/case/set_setting',
+                            method: 'post',
+                            data: send_data,
+                            headers: {
+                                "Content-Type": "application/json;"
+                            }
+                        }).then(function(response) {
+                            alert('修改成功')
+                        })
+                        .catch(function(error) {
+                            alert('修改失败')
+                            console.log(error);
+                        })
+                },
+                async generate_cookie() {
+                    var cookie = '';
+                    await axios({
+                            url: 'http://39.99.172.71:8080/user/login',
+                            method: 'post',
+                            data: {
+                                username: this.setting.username,
+                                password: this.setting.password,
+                                role: this.setting.role
+                            },
+                            headers: {
+                                "Content-Type": "application/json;"
+                            }
+                        }).then(function(response) {
+                            cookie = 'user_id=' + response.data['user_id'] + ';token=' + response.data['token'];
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        })
+                    this.setting.cookie = cookie
+                },
+                async get_setting() {
+                    var setting = '';
+                    await axios({
+                            url: '/case/get_setting',
+                            method: 'get'
+                        }).then(function(response) {
+                            setting = response.data;
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        })
+                    this.setting = setting
+                },
+                async get_case() {
+                    var cases = '';
+                    await axios({
+                            url: '/case/get_case',
+                            method: 'get'
+                        }).then(function(response) {
+                            cases = response.data;
+                        })
+                        .catch(function(error) {
+                            console.log(error);
+                        })
+                    this.cases = cases
+                },
+                init_add_case_obj() {
+                    this.add_case_obj.id = this.cases[this.cases.length - 1].id + 1
+                    this.add_case_obj.url = this.setting.based_url
+                    this.add_case_obj.method = 'post'
+                    this.add_case_obj.is_exe = 'yes'
+                    this.add_case_obj.headers = '{}'
+                    this.add_case_obj.data = '{}'
+                    this.add_case_obj.expect_code = 200
+                    this.add_case_obj.expect_return = '{}'
+                    this.add_case_obj.level = 1
+                },
+                init_update_case_obj(i) {
+                    this.update_case_obj = JSON.parse(JSON.stringify(this.cases[i]));
+                },
+                async add_case() {
+                    if (!isJSON(this.add_case_obj.headers)) {
+                        alert('请输入json格式的headers')
+                        return
+                    }
+                    if (!isJSON(this.add_case_obj.data)) {
+                        alert('请输入json格式的data')
+                        return
+                    }
+                    if (!isJSON(this.add_case_obj.expect_return)) {
+                        alert('请输入json格式的期望数据')
+                        return
+                    }
+                    var send_data = JSON.parse(JSON.stringify(this.add_case_obj));
+                    send_data.headers = eval('(' + send_data.headers + ')');
+                    send_data.data = eval('(' + send_data.data + ')');
+                    send_data.expect_return = eval('(' + send_data.expect_return + ')');
+                    axios({
+                            url: '/case/add_case',
+                            method: 'post',
+                            data: send_data,
+                            headers: {
+                                "Content-Type": "application/json;"
+                            }
+                        }).then(function(response) {
+                            alert('添加成功')
+                            location.reload()
+                        })
+                        .catch(function(error) {
+                            alert('添加失败')
+                            console.log(error);
+                        })
+                },
+                async del_case(i) {
+                    axios({
+                            url: '/case/del_case',
+                            method: 'post',
+                            data: {
+                                id: this.cases[i].id
+                            },
+                            headers: {
+                                "Content-Type": "application/json;"
+                            }
+                        }).then(function(response) {
+                            alert('删除成功')
+                            location.reload()
+                        })
+                        .catch(function(error) {
+                            alert('删除失败')
+                            console.log(error);
+                        })
+                },
+                async update_case() {
+                    if (!isJSON(this.update_case_obj.headers)) {
+                        alert('请输入json格式的headers')
+                        return
+                    }
+                    if (!isJSON(this.update_case_obj.data)) {
+                        alert('请输入json格式的data')
+                        return
+                    }
+                    if (!isJSON(this.update_case_obj.expect_return)) {
+                        alert('请输入json格式的期望数据')
+                        return
+                    }
+                    var send_data = JSON.parse(JSON.stringify(this.update_case_obj));
+                    send_data.headers = eval('(' + send_data.headers + ')');
+                    send_data.data = eval('(' + send_data.data + ')');
+                    send_data.expect_return = eval('(' + send_data.expect_return + ')');
+                    axios({
+                            url: '/case/update_case',
+                            method: 'post',
+                            data: send_data,
+                            headers: {
+                                "Content-Type": "application/json;"
+                            }
+                        }).then(function(response) {
+                            alert('修改成功')
+                            location.reload()
+                        })
+                        .catch(function(error) {
+                            alert('修改失败')
+                            console.log(error);
+                        })
+                },
+                async execute_case() {
+                    axios({
+                            url: '/case/execute_case',
+                            method: 'get'
+                        }).then(function(response) {
+                            alert('所有用例执行成功，请去报告管理页面查看报告')
+                            location.reload()
+                        })
+                        .catch(function(error) {
+                            alert('执行失败')
+                            console.log(error);
+                        })
+                }
+            },
+            created: function() {　　
+                this.get_setting()
+                this.get_case()
+            }
+        })
+        var tip_index = 0;
+        $("table").on("mouseover", "td", function() {
+            if (this.offsetWidth < this.scrollWidth) { //判断文本是否超出
+                var content = $(this).text(); //获取文案
+                if (content) {
+                    tip_index = layer.tips(content, this, {
+                        time: 0,
+                        tips: [3, '#ffb951'],
+                        area: ['200px', 'auto']
+                    });
+                }
+            }
+        })
+        $("table").on("mouseleave", "td", function() {
+            layer.close(tip_index);
+        })
+        $('#myModal').on('shown.bs.modal', function() {
+                $('#myInput').focus()
+            })
+            // var socket = io.connect('http://127.0.0.1:5000/test')
+
+        // socket.emit("message", {
+        //     "data": "zhangsan"
+        // })
+
+        // socket.on('response', function(data) {
+        //     console.log(data.age)
+        // });
+    </script>
+
+
+</body>
+
+</html>
