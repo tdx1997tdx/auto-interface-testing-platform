@@ -28,7 +28,7 @@ python3 manage.py dbinit
 6. 打开应用
 
 ```sh
-nohup python3 manage.py runserver &
+nohup python3 manage.py runserver 0.0.0.0:5000 &
 ```
 
 7. 访问 http://ip:5000就可以用了
