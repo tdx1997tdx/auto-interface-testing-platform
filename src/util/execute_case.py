@@ -3,11 +3,11 @@
 from src.util.do_requests import send_requests
 from src.util.log import LOG
 
-
-def execute(container):
+def execute(container,setting):
     LOG.info("用例执行中")
     for i in container:
-        ret_code, ret_result = send_requests(i.url, i.method, i.data, i.headers)
+
+        ret_code, ret_result = send_requests(i.url, i.method, i.data, i.headers.update(setting['based_headers']))
         i.set_ret(ret_code, ret_result)
         i.is_case_succeed()
         LOG.info("用例%d执行完毕" % (i.id))
