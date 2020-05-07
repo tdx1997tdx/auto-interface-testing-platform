@@ -18,7 +18,7 @@ class TestCase(dict):
 
     def is_case_succeed(self):
         """判断用例是否成功"""
-        if self.level == 1:
+        if self.level == 2:
             if self.expect_code != self.ret_code:
                 self.judge = (0, '状态码不正确')
                 return
@@ -26,7 +26,7 @@ class TestCase(dict):
                 self.judge = (1, '返回结果不正确')
                 return
             self.judge = (2, '结果正确')
-        elif self.level == 0:
+        elif self.level == 1:
             if self.expect_code != self.ret_code:
                 self.judge = (0, '状态码不正确')
                 return
